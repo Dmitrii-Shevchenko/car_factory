@@ -10,13 +10,14 @@ class Factory(bodyShop: BodyShop,
               engineShop: EngineShop,
               wheelShop: WheelShop,
               qualityAssurance: QualityAssurance,
-              upgradeShop: UpgradeShop)
-             (implicit materializer: Materializer) {
+              upgradeShop: UpgradeShop)(implicit materializer: Materializer) {
   def orderCars(quantity: Int): Future[Seq[Car]] = {
     bodyShop.cars
       .via(paintShop.paint)
       .via(engineShop.installEngine)
+      .async
       .via(wheelShop.installWheels)
+      .async
       .via(upgradeShop.installUpgrades)
       .via(qualityAssurance.inspect)
       .take(quantity)
